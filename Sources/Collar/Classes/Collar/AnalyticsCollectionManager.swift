@@ -23,8 +23,8 @@ public struct LogItem: CustomStringConvertible {
 
     static let dateFormatter = ISO8601DateFormatter()
 
-    init(screenName: String, screenClass: String?) {
-        self.init(type: .screen, name: screenName, value: screenClass)
+    init(screenClass: String, screenName: String?) {
+        self.init(type: .screen, name: screenClass, value: screenName)
     }
     
     init(event: String, parameters: [String: Any]?) {
@@ -89,10 +89,18 @@ public class AnalyticsCollectionManager {
 
 public extension AnalyticsCollectionManager {
     
-    func track(screenName: String?, screenClass: String?) {
-        guard let screenName = screenName else { return }
+    func track(viewController: UIViewController) {
+        let screenClass = String(describing: type(of: viewController))
+        let screenName = viewController.title
         DispatchQueue.main.async { [weak self] in
-            self?.logs.append(.init(screenName: screenName, screenClass: screenClass))
+            self?.logs.append(.init(screenClass: screenClass, screenName: screenName))
+        }
+    }
+    
+    func track(screenClass: String?, screenName: String?) {
+        guard let screenClass = screenClass else { return }
+        DispatchQueue.main.async { [weak self] in
+            self?.logs.append(.init(screenClass: screenClass, screenName: screenName))
         }
     }
 
